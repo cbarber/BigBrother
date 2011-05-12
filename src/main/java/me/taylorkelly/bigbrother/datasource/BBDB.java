@@ -41,7 +41,7 @@ public class BBDB {
     private static Connection          conn;
     @SuppressWarnings("unused")
     private static JDCConnectionDriver driver;
-    
+
     public interface DBFailCallback {
         void disableMe();
     }
@@ -112,6 +112,11 @@ public class BBDB {
     }
     
     public static void reconnect() throws SQLException {
+        disconnect();
+        connect();
+    }
+    
+    public static void connect() throws SQLException {
         String driverClass = "";
         switch (dbms) {
             case H2:
@@ -138,11 +143,20 @@ public class BBDB {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
         conn = DriverManager.getConnection("jdbc:jdc:jdcpool");
         conn.setAutoCommit(false);
     }
-    
+
+    public static void disconnect() {
+        if(null != conn) {
+            try {
+                conn.close();
+            } catch (SQLException exception) {
+                BBLogging.severe("Failed to close database connection", exception);
+            }
+        }
+    }
+
     public static void cleanup(String caller, Statement stmt, ResultSet rs) {
         try {
             if (null != rs) {
