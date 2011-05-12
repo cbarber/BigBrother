@@ -130,7 +130,7 @@ public class Finder {
 
             int size = 0;
             while (rs.next()) {
-                BBPlayerInfo player = BBUsersTable.getInstance().getUserByID(rs.getInt("player"));
+                BBPlayerInfo player = BBUsersTable.getInstance().findById(rs.getInt("player"));
                 int mods = rs.getInt("modifications");
                 modifications.put(player, mods);
                 size++;
@@ -150,7 +150,7 @@ public class Finder {
                 }
                 //TODO Put into sync'd runnable
                 for (Player player : players) {
-                    player.sendMessage(BigBrother.premessage + playerList.length() + " player(s) have modified this area:");
+                    player.sendMessage(BigBrother.premessage + size + " player(s) have modified this area:");
                     player.sendMessage(playerList.toString());
                 }
             } else {
@@ -168,7 +168,7 @@ public class Finder {
 
     private static final void mysqlFind(final Plugin plugin, final String playerName, final Location location, final int radius, final WorldManager manager, final ArrayList<Player> players) {
         
-        BBPlayerInfo hunted = BBUsersTable.getInstance().getUserByName(playerName);
+        BBPlayerInfo hunted = BBUsersTable.getInstance().findByName(playerName);
         
         PreparedStatement ps = null;
         ResultSet rs = null;

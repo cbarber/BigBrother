@@ -7,60 +7,67 @@ import org.bukkit.entity.Player;
 
 public class Watcher {
 
-	private Server server;
+    private Server server;
 
     public Watcher(Server server) {
-	    this.server=server;
-	}
+        this.server = server;
+    }
 
-	public boolean watching(Player player) {
-		return BBUsersTable.getInstance().getUserByName(player.getName()).getWatched();
-	}
+    public boolean watching(Player player) {
+        return BBUsersTable.getInstance().findByName(player.getName()).getWatched();
+    }
 
-	public boolean toggleWatch(String player) {
-		BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player);
-		pi.setWatched(!pi.getWatched());
-		return pi.getWatched();
-	}
+    public boolean toggleWatch(String player) {
+        BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player);
 
-	public String getWatchedPlayers() {
-		StringBuilder list = new StringBuilder();
-		for (BBPlayerInfo pi : BBUsersTable.getInstance().knownPlayers.values()) {
-		    if(pi.getWatched()) {
-		        list.append(pi.getName());
-		        list.append(", ");
-		    }
-		}
-		if (list.toString().contains(","))
-			list.delete(list.lastIndexOf(","), list.length());
-		return list.toString();
-	}
+        if(null == pi) {
+            return false;
+        }
+        
+        pi.setWatched(!pi.getWatched());
+        return pi.getWatched();
+    }
 
-	public boolean haveSeen(Player player) {
-		return BBUsersTable.getInstance().knownNames.containsKey(player.getName());
-	}
-
-	public void watchPlayer(Player player) {
-		watchPlayer(player.getName());
-	}
-
-	public void watchPlayer(String player) {
-        BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player);
-        pi.setWatched(true);
-	}
-
-	public String getUnwatchedPlayers() {
-		Player[] playerList = server.getOnlinePlayers();
+    public String getWatchedPlayers() {
         StringBuilder list = new StringBuilder();
-        for (Player name : playerList) {
-            BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(name.getName());
-            if(pi.getWatched()) {
-                list.append(pi.getName());
+        BBPlayerInfo[] watchedPlayers = BBUsersTable.getInstance().getWatchedPlayers();
+
+        for (int i = 0; i < watchedPlayers.length; ++i) {
+            if (i > 0) {
                 list.append(", ");
             }
+            list.append(watchedPlayers[i].getName());
         }
-        if (list.toString().contains(","))
-            list.delete(list.lastIndexOf(","), list.length());
         return list.toString();
-	}
+    }
+
+    public String getUnwatchedPlayers() {
+        StringBuilder list = new StringBuilder();
+        BBPlayerInfo[] watchedPlayers = BBUsersTable.getInstance().getUnwatchedPlayers();
+
+        for (int i = 0; i < watchedPlayers.length; ++i) {
+            if (i > 0) {
+                list.append(", ");
+            }
+            list.append(watchedPlayers[i].getName());
+        }
+        return list.toString();
+    }
+
+    public boolean haveSeen(Player player) {
+        return null != BBUsersTable.getInstance().findByName(player.getName());
+    }
+
+    public void watchPlayer(Player player) {
+        BBPlayerInfo playerInfo = BBPlayerInfo.findOrCreateByName(player.getName());
+        playerInfo.setWatched(true);
+        playerInfo.save();
+    }
+
+    public void unwatchPlayer(Player player) {
+        BBPlayerInfo playerInfo = BBPlayerInfo.findOrCreateByName(player.getName());
+        playerInfo.setWatched(false);
+        playerInfo.save();
+    }
+
 }

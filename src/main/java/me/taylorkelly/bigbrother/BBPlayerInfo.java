@@ -13,16 +13,8 @@ import org.bukkit.inventory.ItemStack;
  * 
  */
 public class BBPlayerInfo {
-    enum PlayerField {
-        WATCHED
-    }
 
     public static BBPlayerInfo ENVIRONMENT;
-    
-    /**
-     * New guy? (INSERT instead of UPDATE)
-     */
-    private boolean isNew = true;
     
     /**
      * Are we waiting for this guy to do something after he opens a chest? (Workaround for lack of inventory update events)
@@ -30,8 +22,8 @@ public class BBPlayerInfo {
     private ItemStack[] chestContents=null;
     
     private String name = "";
-    private int flags = 0; // bitfield flags
     private int id = -1;
+    private boolean watched;
 
     private Chest myOpenChest=null;
     
@@ -42,15 +34,25 @@ public class BBPlayerInfo {
      */
     public BBPlayerInfo(String name) {
         this.name = name;
-        setNew(true); // Only really used to determine if we need to INSERT or
-                      // UPDATE.
-        if (BBSettings.autoWatch)
-            setWatched(true);
 
-        BBUsersTable.getInstance().addOrUpdatePlayer(this);
-        refresh(); // Get ID#
-        setNew(false);
-        BBLogging.debug("New user: "+name+" -> #"+id);
+        if (BBSettings.autoWatch) {
+            setWatched(true);
+        }
+    }
+
+    public static BBPlayerInfo findOrCreateByName(String name) {
+        BBUsersTable table = BBUsersTable.getInstance();
+
+        BBPlayerInfo playerInfo = table.findByName(name);
+
+        if(null == playerInfo) {
+            playerInfo = new BBPlayerInfo(name);
+            table.create(playerInfo);
+
+            BBLogging.debug("New user: " + name + " -> #" + playerInfo.getID());
+        }
+
+        return playerInfo;
     }
     
     /**
@@ -59,20 +61,14 @@ public class BBPlayerInfo {
      * @param name
      * @param flags
      */
-    public BBPlayerInfo(int id,String name,int flags) {
-        this.id=id;
-        this.name=name;
-        this.flags=flags;
+    public BBPlayerInfo(int id, String name, boolean watched) {
+        this.id = id;
+        this.name = name;
+        this.watched = watched;
     }
     
-    private void setFlag(PlayerField fld, boolean on) {
-        if (!on)
-            flags &= ~(1 << fld.ordinal());
-        else
-            flags |= (1 << fld.ordinal());
-        if(id!=-1) {
-            BBUsersTable.getInstance().addOrUpdatePlayer(this);
-        }
+    void save() {
+        BBUsersTable.getInstance().save(this);
     }
     
     /**
@@ -81,20 +77,14 @@ public class BBPlayerInfo {
     public void refresh() {
         BBPlayerInfo clone;
         BBLogging.debug("BBPlayerInfo.refresh(): "+name+"#"+Integer.valueOf(id));
-        if(id>-1)
-            clone = BBUsersTable.getInstance().getUserFromDB(id);
-        else
-            clone = BBUsersTable.getInstance().getUserFromDB(name); 
-        this.id=clone.id;
-        this.flags=clone.flags;
-        this.name=clone.name;
+
+        clone = BBUsersTable.getInstance().findById(id);
+        
+        this.id = clone.id;
+        this.watched = clone.watched;
+        this.name = clone.name;
     }
 
-    private boolean getFlag(PlayerField fld) {
-        int f = (1 << fld.ordinal());
-        return (flags & f) == f;
-    }
-    
     public int getID() {
         return id;
     }
@@ -103,31 +93,15 @@ public class BBPlayerInfo {
         return name;
     }
     
-    public int getFlags() {
-        return flags;
+    public void setId(int value) {
+        this.id = value;
     }
-    
-    /**
-     * Used for tracking whether a user is new to the database or not.
-     * @param b
-     */
-    public void setNew(boolean b) {
-        isNew=b;
-    }
-    
-    /**
-     * 
-     * @return
-     */
-    public boolean getNew() {
-        return isNew;
-    }
-    
+
     /**
      * @param b
      */
     public void setWatched(boolean b) {
-        setFlag(PlayerField.WATCHED, true);
+        this.watched = b;
     }
     
     /**
@@ -135,9 +109,13 @@ public class BBPlayerInfo {
      * @return
      */
     public boolean getWatched() {
-        return getFlag(PlayerField.WATCHED);
+        return this.watched;
     }
     
+    public boolean isNew() {
+        return id <= -1;
+    }
+
     /**
      * Set true when user has opened a chest.
      * Set false when they move/do stuff that can only be done outside of inventory.

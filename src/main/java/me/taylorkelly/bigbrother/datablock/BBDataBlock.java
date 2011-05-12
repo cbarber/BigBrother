@@ -53,7 +53,7 @@ public abstract class BBDataBlock {
 
     public BBDataBlock(String player, Action action, String world, int x, int y, int z, int type, String data) {
         this.date = System.currentTimeMillis() / 1000;
-        this.player = BBUsersTable.getInstance().getUserByName(player);
+        this.player = BBUsersTable.getInstance().findByName(player);
         this.action = action;
         this.world = world;
         this.x = x;
@@ -142,6 +142,6 @@ public abstract class BBDataBlock {
         }
     }
     public static BBDataBlock getBBDataBlock(int plyID, Action action, String world, int x, int y, int z, int type, String data) {
-        return getBBDataBlock(BBUsersTable.getInstance().getUserByID(plyID),action,world,x,y,z,type,data);
+        return getBBDataBlock(BBUsersTable.getInstance().findById(plyID),action,world,x,y,z,type,data);
     }
 }

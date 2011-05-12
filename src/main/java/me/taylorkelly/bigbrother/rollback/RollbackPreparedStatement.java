@@ -113,7 +113,7 @@ public abstract class RollbackPreparedStatement {
         StringBuilder ret = new StringBuilder("player IN (");
         for (int i = 0; i < players.size(); i++) {
             ret.append("'");
-            ret.append(BBUsersTable.getInstance().getUserByName(players.get(i)).getID());
+            ret.append(BBUsersTable.getInstance().findByName(players.get(i)).getID());
             ret.append("'");
             if (i + 1 < players.size()) {
                 ret.append(",");

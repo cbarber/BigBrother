@@ -44,13 +44,13 @@ public class BBDataH2 extends BBDataTable {
         + "`data` TEXT NOT NULL DEFAULT ''," 
         + "`rbacked` boolean NOT NULL DEFAULT '0'" 
         + ");" 
-        + "CREATE INDEX dateIndex on bbdata (date);" 
-        + "CREATE INDEX playerIndex on bbdata (player);" 
-        + "CREATE INDEX actionIndex on bbdata (action);"
-        + "CREATE INDEX worldIndex on bbdata (world);" 
-        + "CREATE INDEX posIndex on bbdata (x,y,z);" 
-        + "CREATE INDEX typeIndex on bbdata (type);" 
-        + "CREATE INDEX rbackedIndex on bbdata (rbacked);";
+        + "CREATE INDEX IF NOT EXISTS dateIndex on bbdata (date);"
+        + "CREATE INDEX IF NOT EXISTS playerIndex on bbdata (player);"
+        + "CREATE INDEX IF NOT EXISTS actionIndex on bbdata (action);"
+        + "CREATE INDEX IF NOT EXISTS worldIndex on bbdata (world);"
+        + "CREATE INDEX IF NOT EXISTS posIndex on bbdata (x,y,z);"
+        + "CREATE INDEX IF NOT EXISTS typeIndex on bbdata (type);"
+        + "CREATE INDEX IF NOT EXISTS rbackedIndex on bbdata (rbacked);";
     }
 
 	@Override

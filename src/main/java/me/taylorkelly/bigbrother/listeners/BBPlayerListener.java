@@ -56,7 +56,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.commands && pi.getWatched()) {
 				Command dataBlock = new Command(player, event.getMessage(), player.getWorld().getName());
@@ -75,8 +75,7 @@ public class BBPlayerListener extends PlayerListener {
 				return;
 			Player player = event.getPlayer();
 
-			BBUsersTable.getInstance().addOrUpdateUser(player);
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 
 			/*
         if (!plugin.haveSeen(player)) {
@@ -108,7 +107,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.disconnect && pi.getWatched()) {
 				Disconnect dataBlock = new Disconnect(player.getName(), player.getLocation(), player.getWorld().getName());
@@ -129,7 +128,7 @@ public class BBPlayerListener extends PlayerListener {
 			Location to = event.getTo();
 
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.teleport && pi.getWatched() && distance(from, to) > 5 && !event.isCancelled()) {
 				Teleport dataBlock = new Teleport(player.getName(), event.getTo());
@@ -147,7 +146,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.chat && pi.getWatched()) {
 				Chat dataBlock = new Chat(player, event.getMessage(), player.getWorld().getName());
@@ -164,7 +163,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			if (BBSettings.pickupItem && pi.getWatched()) {
 				// It should not be null, but I have no other way to explain the NPEs.  Bukkit Bug?
 				if(event.getItem() != null && event.getItem().getItemStack() != null)
@@ -184,7 +183,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 			if (BBSettings.dropItem && pi.getWatched()) {
 				DropItem dataBlock = new DropItem(player.getName(), event.getItemDrop(), event.getItemDrop().getWorld().getName());
 				dataBlock.send();
@@ -203,7 +202,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event.isCancelled()) return;
 
 			Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().getUserByName(player.getName());
+			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
 
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 				if (BBPermissions.info(player) && plugin.hasStick(player, player.getItemInHand()) && plugin.leftClickStick(player)) {
@@ -309,7 +308,7 @@ public class BBPlayerListener extends PlayerListener {
 							y = event.getClickedBlock().getY();
 							z = event.getClickedBlock().getZ();
 							type = Material.LAVA.getId();
-							dataBlock2 = new BrokenBlock(BBUsersTable.getInstance().getUserByName(event.getPlayer().getName()), world.getName(), x, y, z, type, (byte) 0);
+							dataBlock2 = new BrokenBlock(BBUsersTable.getInstance().findByName(event.getPlayer().getName()), world.getName(), x, y, z, type, (byte) 0);
 							dataBlock2.send();
 							break;
 						case STATIONARY_WATER:
@@ -318,7 +317,7 @@ public class BBPlayerListener extends PlayerListener {
 							y = event.getClickedBlock().getY();
 							z = event.getClickedBlock().getZ();
 							type = Material.WATER.getId();
-							dataBlock2 = new BrokenBlock(BBUsersTable.getInstance().getUserByName(event.getPlayer().getName()), world.getName(), x, y, z, type, (byte) 0);
+							dataBlock2 = new BrokenBlock(BBUsersTable.getInstance().findByName(event.getPlayer().getName()), world.getName(), x, y, z, type, (byte) 0);
 							dataBlock2.send();
 						}
 						break;

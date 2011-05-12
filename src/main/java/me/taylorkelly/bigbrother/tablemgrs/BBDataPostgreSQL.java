@@ -116,7 +116,7 @@ public class BBDataPostgreSQL extends BBDataMySQL {
                 
                 while (rs.next()) {
                 	String data = rs.getString("data");
-                    BBDataBlock newBlock = BBDataBlock.getBBDataBlock(BBUsersTable.getInstance().getUserByID(rs.getInt("player")), Action.values()[rs.getInt("action")], rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"), rs.getInt("type"), data);
+                    BBDataBlock newBlock = BBDataBlock.getBBDataBlock(BBUsersTable.getInstance().findById(rs.getInt("player")), Action.values()[rs.getInt("action")], rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"), rs.getInt("type"), data);
                     newBlock.date = rs.getLong("date");
                     blockList.add(newBlock);
                 }

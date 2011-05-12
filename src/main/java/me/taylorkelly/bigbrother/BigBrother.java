@@ -64,6 +64,8 @@ public class BigBrother extends JavaPlugin {
     
     @Override
     public void onDisable() {
+        BBDB.disconnect();
+        
         DataBlockSender.disable(this);
     }
     
@@ -114,7 +116,8 @@ public class BigBrother extends JavaPlugin {
         // Initialize tables
         BBLogging.info(BBDataTable.getInstance().toString() + " loaded!");
         worldManager = new WorldManager();
-        BBPlayerInfo.ENVIRONMENT = new BBPlayerInfo("Environment");
+
+        BBPlayerInfo.ENVIRONMENT = BBPlayerInfo.findOrCreateByName("Environment");
         
         // Initialize Listeners
         playerListener = new BBPlayerListener(this);
