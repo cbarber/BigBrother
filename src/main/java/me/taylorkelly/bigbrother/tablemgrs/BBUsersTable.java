@@ -3,6 +3,7 @@ package me.taylorkelly.bigbrother.tablemgrs;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -92,7 +93,7 @@ public abstract class BBUsersTable extends DBTable {
         ResultSet generatedKeys = null;
         
         try {
-            ps = BBDB.prepare("INSERT INTO "+getActualTableName()+" (name,watched) VALUES (?,?)");
+            ps = BBDB.prepare("INSERT INTO "+getActualTableName()+" (name,watched) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1,playerInfo.getName());
             ps.setBoolean(2,playerInfo.getWatched());
 
@@ -165,8 +166,7 @@ public abstract class BBUsersTable extends DBTable {
 
     public void userOpenedChest(String player, Chest c, ItemStack[] contents) {
         BBPlayerInfo pi = findByName(player);
-        pi.setHasOpenedChest(c,contents);
-        knownPlayers.put(pi.getID(),pi);
+        pi.setHasOpenedChest(c, contents);
     }
 
     protected BBPlayerInfo getFromCache(int id) {

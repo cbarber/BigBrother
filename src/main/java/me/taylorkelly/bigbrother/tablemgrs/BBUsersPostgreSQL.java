@@ -9,7 +9,7 @@ public class BBUsersPostgreSQL extends BBUsersMySQL {
     	return "CREATE TABLE \""+getTableName()+"\" ("
 			+ "\"id\" SERIAL,"
 			+ "\"name\" varchar(32) NOT NULL DEFAULT 'Player', "
-                        + "\"watched\" INT NOT NULL DEFAULT '0',"
+                        + "\"watched\" BOOLEAN NOT NULL DEFAULT '0', "
 			+ "PRIMARY KEY (\"id\"),"
 			+ "UNIQUE(\"name\"));";
     }

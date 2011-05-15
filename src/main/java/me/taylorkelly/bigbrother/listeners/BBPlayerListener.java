@@ -1,5 +1,6 @@
 package me.taylorkelly.bigbrother.listeners;
 
+import java.io.Console;
 import java.util.ArrayList;
 
 import me.taylorkelly.bigbrother.BBLogging;
@@ -35,8 +36,10 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInventoryEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -51,13 +54,18 @@ public class BBPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+                BBLogging.debug("Fired onPlayerCommandPreprocess");
+
 		try {
 			//plugin.processPsuedotick();
 			if(event==null || event.getPlayer()==null)
 				return;
 			Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
-			plugin.closeChestIfOpen(pi);
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
+
+
+                        plugin.closeChestIfOpen(pi);
+
 			if (BBSettings.commands && pi.getWatched()) {
 				Command dataBlock = new Command(player, event.getMessage(), player.getWorld().getName());
 				dataBlock.send();
@@ -107,7 +115,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.disconnect && pi.getWatched()) {
 				Disconnect dataBlock = new Disconnect(player.getName(), player.getLocation(), player.getWorld().getName());
@@ -128,7 +136,7 @@ public class BBPlayerListener extends PlayerListener {
 			Location to = event.getTo();
 
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.teleport && pi.getWatched() && distance(from, to) > 5 && !event.isCancelled()) {
 				Teleport dataBlock = new Teleport(player.getName(), event.getTo());
@@ -146,7 +154,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 			plugin.closeChestIfOpen(pi);
 			if (BBSettings.chat && pi.getWatched()) {
 				Chat dataBlock = new Chat(player, event.getMessage(), player.getWorld().getName());
@@ -159,11 +167,12 @@ public class BBPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+                BBLogging.debug("Fired onPlayerPickupItem");
 		try {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 			if (BBSettings.pickupItem && pi.getWatched()) {
 				// It should not be null, but I have no other way to explain the NPEs.  Bukkit Bug?
 				if(event.getItem() != null && event.getItem().getItemStack() != null)
@@ -179,11 +188,12 @@ public class BBPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
+                BBLogging.debug("Fired onPlayerDropItem");
 		try {
 			if(event==null || event.getPlayer()==null)
 				return;
 			final Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 			if (BBSettings.dropItem && pi.getWatched()) {
 				DropItem dataBlock = new DropItem(player.getName(), event.getItemDrop(), event.getItemDrop().getWorld().getName());
 				dataBlock.send();
@@ -195,6 +205,7 @@ public class BBPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
+                BBLogging.debug("Fired onPlayerInteract");
 		try {
 			if(event==null || event.getPlayer()==null)
 				return;
@@ -202,7 +213,7 @@ public class BBPlayerListener extends PlayerListener {
 			if(event.isCancelled()) return;
 
 			Player player = event.getPlayer();
-			BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+                        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
 
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 				if (BBPermissions.info(player) && plugin.hasStick(player, player.getItemInHand()) && plugin.leftClickStick(player)) {
@@ -236,6 +247,8 @@ public class BBPlayerListener extends PlayerListener {
 					PlacedBlock dataBlock;
 					World world;
 					Block block = event.getClickedBlock();
+
+
 
 					plugin.closeChestIfOpen(pi);
 					if(block.getState() instanceof Chest) {
@@ -358,6 +371,18 @@ public class BBPlayerListener extends PlayerListener {
 			BBLogging.severe("onPlayerInteract("+event.toString()+")",e);
 		}
 	}
+
+    @Override
+    public void onInventoryOpen(PlayerInventoryEvent event) {
+        BBLogging.debug("Fired onInventoryOpen");
+        super.onInventoryOpen(event);
+    }
+
+    @Override
+    public void onPlayerMove(PlayerMoveEvent event) {
+        BBLogging.debug("Fired onPlayerMove");
+        super.onPlayerMove(event);
+    }
 
 	private double distance(Location from, Location to) {
 		return Math.sqrt(Math.pow(from.getX() - to.getX(), 2) + Math.pow(from.getY() - to.getY(), 2) + Math.pow(from.getZ() - to.getZ(), 2));

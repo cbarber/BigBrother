@@ -53,7 +53,7 @@ public class BBBlockListener extends BlockListener {
         if (!event.isCancelled()) {
             BBLogging.debug("onBlockBreak");
             Player player = event.getPlayer();
-            BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+            BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
             plugin.closeChestIfOpen(pi);
             if (BBSettings.blockBreak && pi.getWatched()) {
                 Block block = event.getBlock();
@@ -66,7 +66,7 @@ public class BBBlockListener extends BlockListener {
     @Override
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        BBPlayerInfo pi = BBUsersTable.getInstance().findByName(player.getName());
+        BBPlayerInfo pi = BBPlayerInfo.findOrCreateByName(player.getName());
         plugin.closeChestIfOpen(pi);
         if (BBSettings.blockPlace && pi.getWatched() && !event.isCancelled()) {
             BBLogging.debug("onBlockPlace");

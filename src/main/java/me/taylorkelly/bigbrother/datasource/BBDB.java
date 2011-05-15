@@ -273,6 +273,10 @@ public class BBDB {
         return conn.prepareStatement(sql);
     }
     
+    public static PreparedStatement prepare(String sql, int i) throws SQLException {
+        return conn.prepareStatement(sql, i);
+    }
+    
     /**
      * @throws SQLException
      * 
